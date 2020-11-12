@@ -154,14 +154,20 @@ def adam(w, dw, config=None):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     
-    config['t'] = config['t'] + 1
-    lr, b1, b2, ep, m, v, t = config['learning_rate'], config['beta1'], config['beta2'], config['epsilon'], config['m'], config['v'] , config['t']
+    eps, learning_rate = config['epsilon'], config['learning_rate']
+    beta1, beta2 = config['beta1'], config['beta2']
+    m, v, t = config['m'], config['v'], config['t']
+    # Adam
+    t = t + 1
+    m = beta1 * m 
+    m = m + (1 - beta1) * dw # momentum
     
-    config['m'] = config['beta1']*config['m'] + (1-config['beta1'])*dw.T
-    mt = config['m']/(1-config['beta1']**t)
-    config['v'] = config['beta2']*config['v'] + (1-config['beta2'])*(dw**2).T
-    vt = config['v']/(1-config['beta2']**t)
-    next_w = w - ((lr*mt)/(np.sqrt(vt)+ep))
+    mt = m / (1 - beta1**t)                   # bias correction
+    v = beta2 * v + (1 - beta2) * (dw * dw)   # RMSprop
+    vt = v / (1 - beta2**t)                   # bias correction
+    next_w = w - learning_rate * mt / (np.sqrt(vt) + eps)
+    # update values
+    config['m'], config['v'], config['t'] = m, v, t
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
